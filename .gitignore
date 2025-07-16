@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+.env
+*.zip
+dist/
+build/
+logs/
+*.log
+
+# OS-specific
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
