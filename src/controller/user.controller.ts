@@ -3,6 +3,7 @@ import { CustomError } from "../helper/CustomError";
 import { compareHashPass } from "../helper/bcrypt";
 import { User } from "../models/user.model";
 import { chekToekn, genereteAccesToken, genereteRefreshToken } from "../helper/jwt";
+import { Validations } from "../validations/user.valitations";
 
 
 export const UserController = {
@@ -10,30 +11,28 @@ export const UserController = {
 
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { username, password } = req?.body
 
+      const { email, password } = await Validations.LoginAdminValidations(req?.body)
+      console.log(email);
+      
       const userIsExists = await User.findOne({
         where: {
-          username
+          email
         },
       });
       if (!userIsExists) {
         throw new CustomError("this user does not exists", 400)
       }
-
       const isEqual = compareHashPass(password, userIsExists?.dataValues.password)
-
-
-
 
       if (!isEqual) {
         throw new CustomError("Password is incorrect", 400)
       }
 
-      console.log(userIsExists?.dataValues?.id);
+      // console.log(userIsExists?.dataValues?.id);
 
       const targetUser = await User.findOne({
-        where: { username },
+        where: { email },
         attributes: {
           exclude: ["password"]
         }

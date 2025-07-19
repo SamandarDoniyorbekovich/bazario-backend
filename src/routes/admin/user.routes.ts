@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authMiddleWare } from "../../moddleware/authMiddleWare";
+import { authMiddleWare } from "../../middleware/authMiddleWare";
 import { UserController } from "../../controller/user.controller";
 
 

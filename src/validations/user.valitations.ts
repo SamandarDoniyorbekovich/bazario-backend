@@ -2,14 +2,18 @@ import Joi from "joi";
 import { CustomError } from "../helper/CustomError";
 
 export class Validations {
-    static async LoginAdminValidations(data:any) {
+    static async LoginAdminValidations(data: any) {
         return Joi.object({
-            fullname:Joi.string().required().error(new CustomError("Fullname is invalid", 400)),
-            email:Joi.string().required().email().messages({
-                "string.base":"Username should be string",
-                "string.email":"Email should be string",
+            email: Joi.string().email().required().messages({
+                "string.base": "Email should be a string",
+                "string.email": "Please provide a valid email address",
+                "any.required": "Email is required"
             }),
-            password:Joi.string().min(6).alphanum().required().error(new CustomError("Password is invalid", 400))
+            password: Joi.string().min(5).required().messages({
+                "string.base": "Password should be a string",
+                "string.min": "Password must be at least 6 characters long",
+                "any.required": "Password is required"
+            })
         }).validateAsync(data)
     }
 }
