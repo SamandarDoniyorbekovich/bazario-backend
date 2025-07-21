@@ -7,6 +7,7 @@ import adminUserRoute from "./routes/admin/user.routes"
 import adminCAtegory from "./routes/admin/category.routes"
 import { initAdmin } from "./helper/init";
 import { errorMiddleware } from "./middleware/errorMiddleware";
+import path from "path";
 
 const port = process.env.PORT
 
@@ -20,6 +21,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/admin/auth", adminUserRoute)
 app.use("/admin/category", adminCAtegory)
+app.use("/files", express.static(path.join(__dirname, "./public/files")))
 app.use(errorMiddleware)
 
 const startServer = async () => {

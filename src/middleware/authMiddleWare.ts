@@ -4,6 +4,7 @@ import { chekToekn } from "../helper/jwt";
 // const JWT_SECRET = process.env.JWT_SECRET
 
 export const authMiddleWare = (req: Request, res: Response, next: NextFunction) => {
+    
     try {
         const token = req.headers?.authorization || ""
         if (!token) {

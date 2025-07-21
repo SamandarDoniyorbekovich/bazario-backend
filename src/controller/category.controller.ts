@@ -1,28 +1,26 @@
 import { NextFunction, Request, Response } from "express";
 import { CustomError } from "../helper/CustomError";
 import { Category } from "../models/category.model";
+import { CategoryValidations } from "../validations/category.validations";
+import { removeFile } from "../helper/removeFile";
 
 export const CategoryController = {
-  // Create new category
+  // Create new category complete checked
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, description, image, sortOrder } = req.body;
+      const { name, description, isActive, sortOrder } = await CategoryValidations.CreateCategoryValidation(req.body);
 
       // Check if category with same name already exists
       const existingCategory = await Category.findOne({
         where: { name }
       });
 
-      if (existingCategory) {
-        throw new CustomError("Category with this name already exists", 400);
-      }
-
       const newCategory = await Category.create({
-        name,
-        description,
-        image,
+        name: JSON.parse(name),
+        description: JSON.parse(description),
+        image: req?.file?.filename,
         sortOrder: sortOrder || 0,
-        isActive: true
+        isActive: isActive || true
       });
 
       res.status(201).json({
@@ -35,7 +33,7 @@ export const CategoryController = {
     }
   },
 
-  // Get all categories
+  // Get all categories complete checked
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const categories = await Category.findAll({
@@ -53,7 +51,7 @@ export const CategoryController = {
     }
   },
 
-  // Get category by ID
+  // Get category by ID complete checked
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -78,6 +76,8 @@ export const CategoryController = {
   // Update category
   async update(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(req.body);
+
       const { id } = req.params;
       const { name, description, image, sortOrder, isActive } = req.body;
 
@@ -88,7 +88,7 @@ export const CategoryController = {
       if (!category) {
         throw new CustomError("Category not found", 404);
       }
-      
+
       // Check if name is being updated and if it already exists
       if (name && name !== category.name) {
         const existingCategory = await Category.findOne({
@@ -114,13 +114,16 @@ export const CategoryController = {
         category
       });
     } catch (error) {
+      console.log(`Failed to update category: ${error}`);
       next(error);
     }
   },
 
-  // Delete category (soft delete by setting isActive to false)
-  async delete(req: Request, res: Response, next: NextFunction) {
+  // Updateing category (soft delete by setting isActive to false) complete checked
+  async updateIsActive(req: Request, res: Response, next: NextFunction) {
     try {
+      // console.log(req.params);
+
       const { id } = req.params;
 
       const category = await Category.findOne({
@@ -130,19 +133,27 @@ export const CategoryController = {
       if (!category) {
         throw new CustomError("Category not found", 404);
       }
-
-      await category.update({ isActive: false });
-
-      res.status(200).json({
-        ok: true,
-        message: "Category deleted successfully"
-      });
+      if (category?.isActive === false) {
+        await category.update({ isActive: true });
+        res.status(200).json({
+          ok: true,
+          message: "Category activated successfully",
+          data: category
+        });
+      } else {
+        await category.update({ isActive: false });
+        res.status(200).json({
+          ok: true,
+          message: "Category deactivated successfully",
+          data: category
+        });
+      }
     } catch (error) {
       next(error);
     }
   },
 
-  // Hard delete category
+  // Hard delete category complete checked
   async hardDelete(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -155,6 +166,7 @@ export const CategoryController = {
         throw new CustomError("Category not found", 404);
       }
 
+      await removeFile(category?.image)
       await category.destroy();
 
       res.status(200).json({
