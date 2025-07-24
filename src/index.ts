@@ -8,6 +8,7 @@ import adminCAtegory from "./routes/admin/category.routes"
 import { initAdmin } from "./helper/init";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import path from "path";
+import adminProduct from "./routes/admin/product.routes";
 
 const port = process.env.PORT
 
@@ -21,6 +22,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/admin/auth", adminUserRoute)
 app.use("/admin/category", adminCAtegory)
+app.use("/admin/product", adminProduct)
 app.use("/files", express.static(path.join(__dirname, "./public/files")))
 app.use(errorMiddleware)
 
@@ -28,7 +30,7 @@ const startServer = async () => {
     try {
         sequelize.authenticate()
         console.log("Connect db");
-        sequelize.sync({})
+        sequelize.sync({ })
         await initAdmin()
         app.listen(port, () => {
             console.log(`Server running on: ${port}`);

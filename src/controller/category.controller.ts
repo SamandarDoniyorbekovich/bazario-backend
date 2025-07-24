@@ -3,6 +3,7 @@ import { CustomError } from "../helper/CustomError";
 import { Category } from "../models/category.model";
 import { CategoryValidations } from "../validations/category.validations";
 import { removeFile } from "../helper/removeFile";
+import { categoryService } from "../services/category.service";
 
 export const CategoryController = {
   // Create new category complete checked
@@ -12,8 +13,14 @@ export const CategoryController = {
 
       // Check if category with same name already exists
       const existingCategory = await Category.findOne({
-        where: { name }
+        where: { name: JSON.parse(name) }
       });
+      if (existingCategory) {
+        if (req.file) {
+          await removeFile(req.file.filename);
+        }
+        throw new CustomError("Category with this name already exists", 400);
+      }
 
       const newCategory = await Category.create({
         name: JSON.parse(name),
@@ -76,14 +83,11 @@ export const CategoryController = {
   // Update category
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log(req.body);
 
       const { id } = req.params;
       const { name, description, image, sortOrder, isActive } = req.body;
 
-      const category = await Category.findOne({
-        where: { id }
-      });
+      const category = await categoryService.getCategoryById(id);
 
       if (!category) {
         throw new CustomError("Category not found", 404);
@@ -100,10 +104,14 @@ export const CategoryController = {
         }
       }
 
+      if (req.file && category.image) {
+        await removeFile(category.image);
+      }
+
       await category.update({
-        name: name || category.name,
-        description: description !== undefined ? description : category.description,
-        image: image !== undefined ? image : category.image,
+        name: typeof name === "string" ? JSON.parse(name) : name || category.name,
+        description: typeof description === "string" ? JSON.parse(description) : (description !== undefined ? description : category.description),
+        image: req.file ? req.file.filename : (image !== undefined ? image : category.image),
         sortOrder: sortOrder !== undefined ? sortOrder : category.sortOrder,
         isActive: isActive !== undefined ? isActive : category.isActive
       });
@@ -126,9 +134,7 @@ export const CategoryController = {
 
       const { id } = req.params;
 
-      const category = await Category.findOne({
-        where: { id }
-      });
+      const category = await categoryService.getCategoryById(id);
 
       if (!category) {
         throw new CustomError("Category not found", 404);
@@ -158,16 +164,14 @@ export const CategoryController = {
     try {
       const { id } = req.params;
 
-      const category = await Category.findOne({
-        where: { id }
-      });
+      const category = await categoryService.getCategoryById(id);
 
       if (!category) {
         throw new CustomError("Category not found", 404);
       }
 
       await removeFile(category?.image)
-      await category.destroy();
+      await categoryService.removeCategoryById(id)
 
       res.status(200).json({
         ok: true,
