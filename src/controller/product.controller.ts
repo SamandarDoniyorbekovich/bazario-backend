@@ -91,7 +91,7 @@ export const ProductController = {
                 }
             }
             if (req.files && product.images) {
-                await removeFile(product.images[0]);
+                await removeFile(product.images);
             }
             await product.update({
                 name: typeof name === "string" ? JSON.parse(name) : name || product.name,
@@ -104,6 +104,24 @@ export const ProductController = {
             res.status(200).json({
                 ok: true,
                 message: "Product updated successfully",
+                product
+            })
+        } catch (error) {
+            next(error)
+        }
+    },
+    async deleteProduct(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const product = await ProductService.getProductById(id);
+            if (!product) {
+                throw new CustomError("Product not found", 404);
+            }
+            await removeFile(product.images);
+            await product.destroy();
+            res.status(200).json({
+                ok: true,
+                message: "Product deleted successfully",
                 product
             })
         } catch (error) {

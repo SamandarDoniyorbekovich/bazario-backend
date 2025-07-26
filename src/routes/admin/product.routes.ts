@@ -14,6 +14,9 @@ router.get("/:id", ProductController.getProductById)
 // update product
 router.put("/:id", authMiddleWare, upload.array("image"), ProductController.updateProduct)
 
+// delete product
+router.delete("/:id", authMiddleWare, ProductController.deleteProduct)
+
 // create product
 router.post("/", authMiddleWare, upload.array("image", 10), ProductController.createProduct)
 
