@@ -14,7 +14,7 @@ export class ProductValidation {
         price: Joi.number().required().messages({
             "number.base": "Price should be a number",
             "any.required": "Price is required",
-            "any.invalid": "Price must be a valid number", 
+            "any.invalid": "Price must be a valid number",
         }),
         stock: Joi.number().required().messages({
             "number.base": "Stock should be a number",
@@ -26,7 +26,10 @@ export class ProductValidation {
         }),
         isActive: Joi.boolean().optional().messages({
             "boolean.base": "Is active should be a boolean",
-        })
+        }),
+        images: Joi.alternatives().try(Joi.array().items(Joi.string()),Joi.string()).optional().messages({
+            "alternatives.types": "Images should be an array of strings or a single string",
+        }),
         // categoryId: Joi.string().required().messages({
         //     "string.base": "Category ID should be a string",
         //     "any.required": "Category ID is required",

@@ -9,6 +9,7 @@ import { initAdmin } from "./helper/init";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import path from "path";
 import adminProduct from "./routes/admin/product.routes";
+import { Product } from "./models/product.model";
 
 const port = process.env.PORT
 
@@ -32,6 +33,7 @@ const startServer = async () => {
         console.log("Connect db");
         sequelize.sync({ })
         await initAdmin()
+        // Product.sync({ force: true    })
         app.listen(port, () => {
             console.log(`Server running on: ${port}`);
 
