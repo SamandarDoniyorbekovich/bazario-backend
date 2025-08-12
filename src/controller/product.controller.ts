@@ -39,8 +39,8 @@ export const ProductController = {
 
             const product = await Product.create(
                 {
-                    name,
-                    description,
+                    name: JSON.parse(name),
+                    description: JSON.parse(description),
                     price,
                     stock,
                     minStock,
@@ -73,6 +73,8 @@ export const ProductController = {
         }
     },
     async updateProduct(req: Request, res: Response, next: NextFunction) {
+        // console.log("req.body", req.body);
+        
 
         try {
             const { id } = req.params;
@@ -85,10 +87,11 @@ export const ProductController = {
 
 
             let newImages = await filterImages(product.images, images, req?.files)
+            console.log("newImages", newImages, "images", images, product.images);
 
             await product.update({
-                name,
-                description,
+                name: JSON.parse(name),
+                description: JSON.parse(description),
                 price,
                 images: newImages,
                 stock,

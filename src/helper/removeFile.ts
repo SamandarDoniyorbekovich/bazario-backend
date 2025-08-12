@@ -22,7 +22,6 @@ export const removeFiles = async (fileIds?: string[]) => {
   try {
     if (!fileIds) return;
 
-    // Handle array of files
     for (const file of fileIds) {
       await removeFile(file);
     }

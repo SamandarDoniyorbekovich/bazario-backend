@@ -10,12 +10,14 @@ import { errorMiddleware } from "./middleware/errorMiddleware";
 import path from "path";
 import adminProduct from "./routes/admin/product.routes";
 import { Product } from "./models/product.model";
+import cors from "cors"
 
 const port = process.env.PORT
 
 const app = express()
 app.use(express.json())
 app.use(urlencoded({ extended: true }))
+app.use(cors())
 
 app.get("/", (req: Request, res: Response) => {
     console.log("hello wordl");
